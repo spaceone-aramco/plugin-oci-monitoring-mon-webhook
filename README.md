@@ -1,9 +1,9 @@
-# plugin-google-monitoring-mon-webhook
-webhook for Google Monitoring (Operation Suites)
+# plugin-oci-monitoring-mon-webhook
+webhook for Oracle Cloud Infrastructure (OCI) Monitoring
 
 # Data Model
 
-## Google Monitoring Raw Data
+## OCI Monitoring Raw Data
 
 Webhook notification: 
 
