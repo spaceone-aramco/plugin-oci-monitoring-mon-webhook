@@ -1,14 +1,13 @@
 import logging
-import hashlib
-import json
-from spaceone.core import utils
-from datetime import datetime
-from spaceone.core.manager import BaseManager
-from spaceone.monitoring.manager.incident_1_2 import Incident_1_2
-from spaceone.monitoring.manager.incident import Incident
 
+from spaceone.core.manager import BaseManager
+from spaceone.monitoring.error.event import (
+    ERROR_CHECK_VALIDITY,
+    ERROR_UNSUPPORTED_DATA_FORMAT,
+)
+from spaceone.monitoring.manager.oci_alarm import OCIAlarm
 from spaceone.monitoring.model.event_response_model import EventModel
-from spaceone.monitoring.error.event import *
+
 _LOGGER = logging.getLogger(__name__)
 _EXCEPTION_TO_PASS = ["Test notification"]
 
@@ -20,19 +19,15 @@ class EventManager(BaseManager):
     def parse(self, raw_data):
         results = []
 
-        version = raw_data.get('version')
-        if version == '1.2':
-            inst = Incident_1_2(raw_data.get('incident', {}), version)
-        elif version == 'test':
-            inst = Incident(raw_data.get('incident', {}), version)
+        # OCI data detect (dedupeKey and alarmMetaData exist)
+        if "dedupeKey" in raw_data and "alarmMetaData" in raw_data:
+            inst = OCIAlarm(raw_data)
+            event_dict = inst.get_event_dict()
+            event_vo = self._check_validity(event_dict)
+            results.append(event_vo)
+            _LOGGER.debug(f"[EventManager] parse OCI event : {event_dict}")
         else:
-            # unsupported version
-            inst = Incident(raw_data.get('incident', {}), version)
-            _LOGGER.critical(f'Unsupported version: {version}')
-        event_dict = inst.get_event_dict()
-        event_vo = self._check_validity(event_dict)
-        results.append(event_vo)
-        _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
+            raise ERROR_UNSUPPORTED_DATA_FORMAT()
 
         return results
 
