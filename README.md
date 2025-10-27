@@ -1,115 +1,78 @@
-# plugin-google-monitoring-mon-webhook
-webhook for Google Monitoring (Operation Suites)
+# plugin-oci-monitoring-mon-webhook
+webhook for OCI Monitoring (Operation Suites)
 
 # Data Model
 
-## Google Monitoring Raw Data
+## OCI Monitoring Raw Data
 
 Webhook notification: 
 
 ~~~
 
  {
-    "version": "test",
-    "incident": {
-      "incident_id": "12345",
-      "scoping_project_id": "12345",
-      "scoping_project_number": 12345,
-      "url": "http://www.example.com",
-      "started_at": 0,
-      "ended_at": 0,
-      "state": "OPEN",
-      "summary": "Test Incident",
-      "apigee_url": "http://www.example.com",
-      "observed_value": "1.0",
-      "resource": {
-        "type": "example_resource",
-        "labels": {
-          "example": "label"
+  "dedupeKey": "6b28ce05-7021-4407-b9c0-xxxxxxx",
+  "title": "Notifications",
+  "body": "outside 1-10 Alram",
+  "type": "OK_TO_FIRING",
+  "severity": "CRITICAL",
+  "timestampEpochMillis": 1761563100000,
+  "timestamp": "2025-10-27T11:05:00Z",
+  "alarmMetaData": [
+    {
+      "id": "ocid1.alarm.oc1.ap-seoul-1.aaaaaaaazxxxxxx",
+      "status": "FIRING",
+      "severity": "CRITICAL",
+      "namespace": "oci_autonomous_database",
+      "query": "DatabaseAvailability[5m]{deploymentType = \"Shared\", AutonomousDBType = \"ATP\", region = \"ap-seoul-1\"}.rate() not in (1, 10)",
+      "totalMetricsFiring": 1,
+      "dimensions": [
+        {
+          "AutonomousDBType": "ATP",
+          "deploymentType": "Shared",
+          "resourceId": "OCID1.AUTONOMOUSDATABASE.OC1.AP-SEOUL-1.ANUWGLJRExxxxxx",
+          "resourceName": "ARAMCODEVAUTONOMOUS",
+          "region": "ap-seoul-1",
+          "displayName": "DatabaseAvailability"
         }
-      },
-      "resource_type_display_name": "Example Resource Type",
-      "resource_id": "12345",
-      "resource_display_name": "Example Resource",
-      "resource_name": "projects/12345/example_resources/12345",
-      "metric": {
-        "type": "test.googleapis.com/metric",
-        "displayName": "Test Metric",
-        "labels": {
-          "example": "label"
+      ],
+      "alarmUrl": "https://cloud.oracle.com/monitoring/alarms/ocid1.alarm.oc1.ap-seoul-1.aaaaaaaazxxxxxx?region=ap-seoul-1",
+      "alarmSummary": "This is aramco_dev_autonomous_database_alarm_1. (DatabaseAvailability)",
+      "metricValues": [
+        {
+          "DatabaseAvailability[5m]{deploymentType = \"Shared\", AutonomousDBType = \"ATP\", region = \"ap-seoul-1\"}.rate()": "0.00"
         }
-      },
-      "metadata": {
-        "system_labels": {
-          "example": "label"
-        },
-        "user_labels": {
-          "example": "label"
-        }
-      },
-      "policy_name": "projects/12345/alertPolicies/12345",
-      "policy_user_labels": {
-        "example": "label"
-      },
-      "documentation": "Test documentation",
-      "condition": {
-        "name": "projects/12345/alertPolicies/12345/conditions/12345",
-        "displayName": "Example condition",
-        "conditionThreshold": {
-          "filter": "metric.type=\"test.googleapis.com/metric\" resource.type=\"example_resource\"",
-          "comparison": "COMPARISON_GT",
-          "thresholdValue": 0.5,
-          "duration": "0s",
-          "trigger": {
-            "count": 1
-          }
-        }
-      },
-      "condition_name": "Example condition",
-      "threshold_value": "0.5"
+      ]
     }
-  }
+  ],
+  "notificationType": "Grouped messages across metric streams",
+  "version": 1.5
+}
 
 ~~~
 
-| Field 	| Example |
-| ---   	| ---     |
-| title		| Dastabase Size alert |
-| message       | Database xxxxxx      |
-| state  	| Alerting , ok , no_data |
-| orgID		| 1			|
-| ruleID	| 92			|
-| dashboardID	|			|
-| ruleName	| Database Size alert	|
-| panelID	| 5			|
-| ruleUrl	| https://grafana.stargate.cloudeco.io/d/9tvNgo77k/mongodb-database-details_copy-20210818?tab=alert&viewPanel=5&orgId=1 |
-| ImageUrl	| https://grafana.stargate.cloudeco.io/d/9tvNgo77k/mongodb-database-details_copy-20210818?tab=alert&viewPanel=5&orgId=1 |
-| tags		| { "a": "b" } 		|
-| evalMatches	| "evalMatches": [{"value": 342.2222, "metric": "Count", "tags": null}] |
-
 ## Event key criteria
-Hash key of ```raw_data.incident.incident_id```.
+Hash key of ```raw_data.dedupeKey```.
 
 ## Severity matching information
-|Google Monitoring  ```state```| SpaceONE Event  ```severity```|
+|OCI Monitoring  ```severity```| SpaceONE Event  ```severity```|
 |---|---|
-|Open|ALERT|
-|Closed|RECOVERY|
-|Acknowledged|NONE|
+|CRITICAL|CRITICAL|
+|ERROR|ERROR|
+|WARNING|WARNING|
+|INFO|INFO|
 
 
 ## SpaceONE Event Model
 | Field		| Type | Description	| Example	|
 | ---      | ---     | ---           | ---           |
-| event_id | str  | auto generation | event-1234556  |
-| event_key | str | raw_data.incident.incident_id | 1234 |
-| event_type |  str  | RECOVERY , ALERT based on raw_data.incident.state | RECOVERY	|
-| title | str	| raw_data.incident.summary	| Test Incident	|
-| description | str | raw_data.incident.summary	| Test Incident		|
-| severity | str  | alert level based raw_data.incident.state (Open  -> ALERT, Closed -> RECOVERY, Acknowledged -> NONE | ALERT	|
+| event_key | str | raw_data.dedupeKey | 1234 |
+| event_type |  str  | raw_data.type | OK_TO_FIRING	|
+| title | str	| raw_data.title | Test Incident	|
+| description | str | raw_data.body	| Test Incident		|
+| severity | str  | raw_data.severity | CRITICAL	|
 | resource | dict | Not used		| N/A	|
-| raw_data | dict | Google Monitoring Raw Data | {"title": "Database Size Alert", "dashboardId": 1, ... } |
-| addtional_info | dict | raw_data.dashboardID, raw_data.orgID, raw_data.imageUrl, raw_data.ruleUrl, raw_data.evalMatches, raw_data.tags 	| {"org_id": "1.0", "rule_url" "https://...." } |
+| raw_data | dict | OCI Monitoring Raw Data | {"title": "Database Size Alert", "dashboardId": 1, ... } |
+| addtional_info | dict | raw_data.alarmMetaData.alarmUrl | {"alarm_url" "https://...." } |
 | occured_at | datetime | webhook received time | "2021-08-23T06:47:32.753Z" |
 | alert_id | str | mapped alert_id	| alert-3243434343 |
 | webhook_id | str  | webhook_id	| webhook-34324234234234 |
@@ -118,7 +81,7 @@ Hash key of ```raw_data.incident.incident_id```.
 | created_at | datetime | created time | "2021-08-23T06:47:32.753Z"	|
 
 ## cURL Requests examples
-This topic provides examples of calls to the SpaceONE Grafana monitoring webhook using cURL.
+This topic provides examples of calls to the SpaceONE OCI monitoring webhook using cURL.
 
 Here's a cURL command that works for getting the response from webhook, you can test the following on your local machine.
 ```
@@ -150,7 +113,7 @@ curl -X POST https://your_spaceone_monitoring_webhook_url -d '{
 Followings are examples which works for testing your own webhook.
 
 ```
-curl -X POST https://{your_spaceone_monitoring_grafana_webhook_url} -d '{
+curl -X POST https://{your_spaceone_monitoring_oci_webhook_url} -d '{
   "dashboardId": 1,
   "evalMatches": [
     {
