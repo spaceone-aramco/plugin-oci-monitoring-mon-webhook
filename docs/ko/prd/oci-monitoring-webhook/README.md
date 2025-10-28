@@ -430,6 +430,8 @@ template:
 - [OCI Monitoring Service](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm)
 - [OCI Alarms](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/managingalarms.htm)
 - [OCI Notifications](https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm)
+- [Alarm Message Format](https://docs.public.content.oci.oraclecloud.com/en-us/iaas/Content/Monitoring/alarm-message-format.htm)
+- [Example Alarm Message](https://docs.public.content.oci.oraclecloud.com/en-us/iaas/Content/Monitoring/alarm-message-examples.htm)
 
 ### 11.2 SpaceONE 문서
 - [SpaceONE Plugin Development Guide](https://docs.spaceone.megazone.io/)
