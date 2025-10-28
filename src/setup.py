@@ -30,6 +30,11 @@ setup(
     author_email="choonhoson@megazone.com",
     license="Apache License 2.0",
     packages=find_packages(),
-    install_requires=["spaceone-api", "spaceone-core>=1.0.0,<2.0.0", "schematics"],
+    install_requires=[
+        "spaceone-api",
+        "spaceone-core>=1.0.0,<2.0.0",
+        "schematics",
+        "grpcio>=1.64.1",
+    ],
     zip_safe=False,
 )
