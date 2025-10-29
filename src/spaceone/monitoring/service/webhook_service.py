@@ -16,13 +16,11 @@ class WebhookService(BaseService):
     @check_required(["options"])
     def init(self, params):
         """init grpc by options"""
-        _LOGGER.debug(f">>>>>>>>>> [WebhookService: init] params: {params}")
         return {"metadata": {}}
 
     @transaction
     @check_required(["options"])
     def verify(self, params):
-        _LOGGER.debug(f">>>>>>>>>> [WebhookService: verify] params: {params}")
         """
         Args:
               params:

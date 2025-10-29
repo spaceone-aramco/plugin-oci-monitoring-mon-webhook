@@ -25,7 +25,6 @@ class EventManager(BaseManager):
             event_dict = inst.get_event_dict()
             event_vo = self._check_validity(event_dict)
             results.append(event_vo)
-            _LOGGER.debug(f"[EventManager] parse OCI event : {event_dict}")
         else:
             raise ERROR_UNSUPPORTED_DATA_FORMAT()
 
