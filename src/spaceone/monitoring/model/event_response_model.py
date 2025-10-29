@@ -12,13 +12,12 @@ class ResourceModel(Model):
 
 class EventModel(Model):
     event_key = StringType(required=True)
-    event_type = StringType(
-        choices=["OK_TO_FIRING", "FIRING_TO_OK", "REPEAT", "RESET"], default="NONE"
-    )
+    event_type = StringType(choices=["RECOVERY", "ALERT"], default="ALERT")
     title = StringType(required=True)
     description = StringType(default="")
     severity = StringType(
-        choices=["CRITICAL", "ERROR", "WARNING", "INFO"], default="NONE"
+        choices=["CRITICAL", "ERROR", "WARNING", "INFO", "NOT_AVAILABLE", "NONE"],
+        default="NONE",
     )
     resource = ModelType(ResourceModel)
     rule = StringType(default="")
