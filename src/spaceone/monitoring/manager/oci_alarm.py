@@ -17,7 +17,8 @@ class OCIAlarm:
         )
         self.event_dict["title"] = self._update_title()
         self.event_dict["occurred_at"] = self._update_occurred_at()
-        self._update_resource_and_rule_and_additional()
+        self._update_resource()
+        self._update_rule_and_additional()
 
         self._update()
 
@@ -37,26 +38,70 @@ class OCIAlarm:
         severity = self.raw_data.get("severity", "unknown")
         return f"{title} ({severity})"
 
-    def _update_resource_and_rule_and_additional(self):
+    def _update_resource(self):
         # resource_id = alarmMetaData[0].dimensions[0].resourceId
         # resource_name = alarmMetaData[0].dimensions[0].resourceName
         # resource_type = inventory.CloudService
         alarm_metadata = self.raw_data.get("alarmMetaData", [])
         alarm_metadata_0 = alarm_metadata[0]
         dimensions = alarm_metadata_0.get("dimensions", [])
-        dimension_0 = dimensions[0]
+        if not dimensions:
+            resource = {
+                "resource_id": "",
+                "name": "",
+                "resource_type": "inventory.CloudService",
+            }
+        else:
+            dimension_0 = dimensions[0]
 
-        resource = {
-            "resource_id": dimension_0.get("resourceId", ""),
-            "name": dimension_0.get("resourceName", ""),
-            "resource_type": "inventory.CloudService",
-        }
-
-        additional = {
-            "alarm_url": alarm_metadata_0.get("alarmUrl", ""),
-        }
+            resource = {
+                "resource_id": dimension_0.get("resourceId", ""),
+                "name": dimension_0.get("resourceName")
+                or dimension_0.get("resourceDisplayName", ""),
+                "resource_type": "inventory.CloudService",
+            }
 
         self.event_dict["resource"] = resource
+
+    def _update_rule_and_additional(self):
+        alarm_metadata = self.raw_data.get("alarmMetaData", [])
+        alarm_metadata_0 = alarm_metadata[0]
+        dimensions = alarm_metadata_0.get("dimensions", [])
+        additional = {}
+
+        alarmUrl = alarm_metadata_0.get("alarmUrl", "")
+        namespace = alarm_metadata_0.get("namespace", "")
+        status = alarm_metadata_0.get("status", "")
+
+        if alarmUrl:
+            additional.update(
+                {
+                    "alarm_url": alarmUrl,
+                }
+            )
+        if namespace:
+            additional.update(
+                {
+                    "namespace": namespace,
+                }
+            )
+        if status:
+            additional.update(
+                {
+                    "status": status,
+                }
+            )
+
+        if dimensions:
+            dimension_0 = dimensions[0]
+            region = dimension_0.get("region", "")
+            if region:
+                additional.update(
+                    {
+                        "region": region,
+                    }
+                )
+
         self.event_dict["rule"] = alarm_metadata_0.get("query", "")
         self.event_dict["additional_info"] = additional
 
@@ -74,6 +119,8 @@ class OCIAlarm:
             return "RECOVERY"
         elif type == "OK_TO_FIRING" or type == "REPEAT":
             return "ALERT"
+        else:
+            return "NONE"
 
     @staticmethod
     def _update_severity(severity):

@@ -21,6 +21,10 @@ class EventManager(BaseManager):
 
         # OCI data detect (dedupeKey and alarmMetaData exist)
         if "dedupeKey" in raw_data and "alarmMetaData" in raw_data:
+            # if type is RULE_CHANGE, return empty list
+            if raw_data.get("type") == "RULE_CHANGE":
+                return []
+
             inst = OCIAlarm(raw_data)
             event_dict = inst.get_event_dict()
             event_vo = self._check_validity(event_dict)
@@ -40,4 +44,3 @@ class EventManager(BaseManager):
 
         except Exception as e:
             raise ERROR_CHECK_VALIDITY(field=e)
-
