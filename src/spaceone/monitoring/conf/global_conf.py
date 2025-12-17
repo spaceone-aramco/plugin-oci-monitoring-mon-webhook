@@ -1,14 +1,10 @@
-CONNECTORS = {
-    'GoogleCloudConnector': {}
-}
+CONNECTORS = {"OCICloudConnector": {}}
 
 LOG = {
-    'filters': {
-        'masking': {
-            'rules': {
-                'Webhook.verify': [
-                    'secret_data'
-                ],
+    "filters": {
+        "masking": {
+            "rules": {
+                "Webhook.verify": ["secret_data"],
             }
         }
     }

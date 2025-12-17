@@ -14,25 +14,27 @@
 #   limitations under the License.
 
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-with open('VERSION', 'r') as f:
+with open("VERSION", "r") as f:
     VERSION = f.read().strip()
     f.close()
 
 setup(
-    name='plugin-google-monitoring-mon-webhook',
+    name="plugin-oci-monitoring-mon-webhook",
     version=VERSION,
-    description='Google Monitoring Webhook',
-    long_description='',
-    url='https://cloudforet.io/',
-    author='MEGAZONE SpaceONE Team',
-    author_email='choonhoson@megazone.com',
-    license='Apache License 2.0',
+    description="OCI Monitoring Webhook",
+    long_description="",
+    url="https://cloudforet.io/",
+    author="MEGAZONE SpaceONE Team",
+    author_email="choonhoson@megazone.com",
+    license="Apache License 2.0",
     packages=find_packages(),
     install_requires=[
-        'spaceone-api',
-        'schematics'
+        "spaceone-api",
+        "spaceone-core>=1.0.0,<2.0.0",
+        "schematics",
+        "grpcio>=1.64.1",
     ],
     zip_safe=False,
 )
